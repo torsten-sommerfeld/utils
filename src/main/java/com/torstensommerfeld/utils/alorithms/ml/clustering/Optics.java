@@ -34,7 +34,7 @@ public class Optics<T> {
     private ClusterResponse<T> cluster(ClusterItem<T>[] clusterItems, double maxDistance, int minPoints, double epsilonPercent) {
 
         List<ClusterItem<T>> neighbors = new UnOrderedArrayList<>(clusterItems.length - 1);
-        List<ClusterItem<T>> result = new ArrayList<>(clusterItems.length);
+        List<ClusterItem<T>> result = new ArrayList<>(clusterItems.length + 1);
         List<ClusterItem<T>> seeds = new UnOrderedArrayList<>();
 
         // for each unprocessed point p of DB
@@ -107,11 +107,11 @@ public class Optics<T> {
         List<T> notClustered = new ArrayList<>();
         List<List<T>> clusters = new ArrayList<>();
         List<Integer> steepDownList = new ArrayList<>();
-        int index = 0;
-        int end = result.size() - 1;
 
         ensureReachableDistance(result, epsilonPercent);
-        // result.forEach(p -> System.out.println(p.reachableDistance));
+
+        int index = 0;
+        int end = result.size() - 1;
 
         // start going through the results and try to find clusters
         while (index < end) {
@@ -171,9 +171,12 @@ public class Optics<T> {
                 cluster.add(result.get(i).item);
 
             }
+            for (int i = index; i < startDownwardBestCluster; ++i) {
+                notClustered.add(result.get(i).item);
+            }
         } else {
             // add not clustered items
-            for (int i = index; i <= endUpward; ++i) {
+            for (int i = index; i < endUpward; ++i) {
                 notClustered.add(result.get(i).item);
             }
         }
@@ -218,6 +221,11 @@ public class Optics<T> {
             if (r.reachableDistance < 0)
                 r.reachableDistance = maxReachableDistance;
         });
+
+        // add termination cluster item
+        ClusterItem<T> end = new ClusterItem<>(null);
+        end.reachableDistance = maxReachableDistance;
+        result.add(end);
     }
 
     private double getMaxReachableDistance(List<ClusterItem<T>> result, double epsilonPercent) {
@@ -225,7 +233,7 @@ public class Optics<T> {
     }
 
     private boolean isCluster(int start, int end, int minPoints) {
-        int size = end - start;
+        int size = 1 + end - start;
         return (size >= minPoints);
     }
 
@@ -273,7 +281,7 @@ public class Optics<T> {
     }
 
     private final double getCoreDistance(List<ClusterItem<T>> db, int minPoints) {
-        if (db.size() < minPoints) {
+        if (db.size() < minPoints - 1) {
             return -1;
         }
         int index1 = quickSelect.select(db, minPoints - 1);

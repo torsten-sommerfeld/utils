@@ -28,13 +28,11 @@ public class OpticsTest {
     }
 
     private void run(List<GeoData> data, double maxDistance, int minPoints, double epsilonPercent) {
-        long start = System.currentTimeMillis();
+        // when
         ClusterResponse<GeoData> result = classUnderTest.cluster(data, maxDistance, minPoints, epsilonPercent);
-        // TODO Auto-generated method stub
-        long end = System.currentTimeMillis();
 
-        System.out.println(String.format("%s: %s", data.size(), end - start));
-        System.out.println(result.getClusters().size() + " " + result.getNotClustered().size());
+        // then
+        Assert.assertFalse(result.getClusters().isEmpty());
 
     }
 
@@ -49,6 +47,82 @@ public class OpticsTest {
 
         // then
         Assert.assertEquals(data.size(), cluster.getNotClustered().size());
+
+    }
+
+    @Test
+    public void testClustering2Clusters() {
+        // given
+        Optics<Colors> optics = new Optics<Colors>(Colors::getDistance);
+        List<Colors> data = new ArrayList<>();
+
+        data.add(new Colors(0, 0, 0));
+        data.add(new Colors(0, 20, 0));
+        data.add(new Colors(0, 200, 0));
+        data.add(new Colors(0, 255, 0));
+
+        // when
+        ClusterResponse<Colors> cluster = optics.cluster(data, 4000, 2, 0.1);
+
+        // then
+        Assert.assertEquals(0, cluster.getNotClustered().size());
+        Assert.assertEquals(2, cluster.getClusters().size());
+
+    }
+
+    @Test
+    public void testClustering1ClusterAnd2Uncluserable() {
+        // given
+        Optics<Colors> optics = new Optics<Colors>(Colors::getDistance);
+        List<Colors> data = new ArrayList<>();
+
+        data.add(new Colors(200, 0, 0));
+        data.add(new Colors(0, 0, 200));
+        data.add(new Colors(0, 210, 0));
+        data.add(new Colors(0, 200, 0));
+        data.add(new Colors(0, 255, 0));
+
+        // when
+        ClusterResponse<Colors> cluster = optics.cluster(data, 3900, 2, 0.1);
+
+        // then
+        Assert.assertEquals(2, cluster.getNotClustered().size());
+        Assert.assertEquals(1, cluster.getClusters().size());
+
+    }
+
+    @Test
+    public void testClustering3Clusters() {
+        // given
+        Optics<Colors> optics = new Optics<Colors>(Colors::getDistance);
+        List<Colors> data = new ArrayList<>();
+
+        // cluster 1
+        data.add(new Colors(0, 0, 0));
+        data.add(new Colors(10, 0, 0));
+        data.add(new Colors(15, 0, 0));
+        data.add(new Colors(18, 0, 0));
+        data.add(new Colors(22, 0, 0));
+        // cluster 2
+        data.add(new Colors(50, 0, 0));
+        data.add(new Colors(55, 0, 0));
+        data.add(new Colors(56, 0, 0));
+        data.add(new Colors(60, 0, 0));
+        // cluster 3
+        data.add(new Colors(80, 0, 0));
+        data.add(new Colors(85, 0, 0));
+        data.add(new Colors(90, 0, 0));
+
+        // when
+        ClusterResponse<Colors> cluster = optics.cluster(data, 3900, 2, 0.1);
+
+        // then
+        Assert.assertEquals(0, cluster.getNotClustered().size());
+        Assert.assertEquals(3, cluster.getClusters().size());
+
+        Assert.assertEquals(5, cluster.getClusters().get(0).size());
+        Assert.assertEquals(4, cluster.getClusters().get(1).size());
+        Assert.assertEquals(3, cluster.getClusters().get(2).size());
 
     }
 
