@@ -1,6 +1,7 @@
 package com.torstensommerfeld.utils.alorithms.ml.clustering;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.torstensommerfeld.utils.alorithms.collections.UnOrderedArrayList;
@@ -18,9 +19,19 @@ public class Optics<T> {
         this.distanceProvider = distanceProvider;
     }
 
+    public ClusterResponse<T> cluster(T[] items, double maxDistance, int minPoints, double epsilonPercent) {
+        @SuppressWarnings("unchecked")
+        ClusterItem<T>[] clusterItems = Arrays.stream(items).map(ClusterItem<T>::new).toArray(count -> new ClusterItem[count]);
+        return cluster(clusterItems, maxDistance, minPoints, epsilonPercent);
+    }
+
     public ClusterResponse<T> cluster(List<T> items, double maxDistance, int minPoints, double epsilonPercent) {
         @SuppressWarnings("unchecked")
         ClusterItem<T>[] clusterItems = items.stream().map(ClusterItem<T>::new).toArray(count -> new ClusterItem[count]);
+        return cluster(clusterItems, maxDistance, minPoints, epsilonPercent);
+    }
+
+    private ClusterResponse<T> cluster(ClusterItem<T>[] clusterItems, double maxDistance, int minPoints, double epsilonPercent) {
 
         List<ClusterItem<T>> neighbors = new UnOrderedArrayList<>(clusterItems.length - 1);
         List<ClusterItem<T>> result = new ArrayList<>(clusterItems.length);
@@ -162,7 +173,7 @@ public class Optics<T> {
             }
         } else {
             // add not clustered items
-            for (int i = index; i < endUpward; ++i) {
+            for (int i = index; i <= endUpward; ++i) {
                 notClustered.add(result.get(i).item);
             }
         }

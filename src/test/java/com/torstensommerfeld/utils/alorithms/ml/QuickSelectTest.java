@@ -104,6 +104,48 @@ public class QuickSelectTest {
     }
 
     @Test
+    public void test_select3FromAListContainingOnlyTheSameElement() {
+        // given
+        List<Integer> items = Arrays.asList(3, 3, 3, 3);
+        int k = 2;
+
+        // when
+        int kthValueIndex = classUnderTest.select(items, k);
+
+        // then
+        int value = items.get(kthValueIndex);
+        Assert.assertEquals(3, value);
+    }
+
+    @Test
+    public void test_select3FromAListContainingOnlyTheSameElement_askingForLast() {
+        // given
+        List<Integer> items = Arrays.asList(1, 3, 3, 5);
+        int k = 4;
+
+        // when
+        int kthValueIndex = classUnderTest.select(items, k);
+
+        // then
+        int value = items.get(kthValueIndex);
+        Assert.assertEquals(5, value);
+    }
+
+    @Test
+    public void test_select3FromAListContainingTheSameElementMultipleTimes() {
+        // given
+        List<Integer> items = Arrays.asList(1, 3, 3, 5);
+        int k = 2;
+
+        // when
+        int kthValueIndex = classUnderTest.select(items, k);
+
+        // then
+        int value = items.get(kthValueIndex);
+        Assert.assertEquals(3, value);
+    }
+
+    @Test
     public void test_selectMultipleFromUnOrderedLargeList() {
         // given
         Random rnd = new Random(0);
