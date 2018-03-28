@@ -9,6 +9,9 @@ import com.torstensommerfeld.utils.alorithms.ml.QuickSelect;
 
 import lombok.Getter;
 import lombok.ToString;
+import progress.DummyProgressImpl;
+import progress.Progress;
+import progress.ProgressImpl;
 
 public class Optics<T> {
 
@@ -20,25 +23,42 @@ public class Optics<T> {
     }
 
     public ClusterResponse<T> cluster(T[] items, double maxDistance, int minPoints, double epsilonPercent) {
+        return cluster(items, maxDistance, minPoints, epsilonPercent, new DummyProgressImpl());
+    }
+
+    public ClusterResponse<T> cluster(T[] items, double maxDistance, int minPoints, double epsilonPercent, Progress progress) {
         @SuppressWarnings("unchecked")
         ClusterItem<T>[] clusterItems = Arrays.stream(items).map(ClusterItem<T>::new).toArray(count -> new ClusterItem[count]);
-        return cluster(clusterItems, maxDistance, minPoints, epsilonPercent);
+        return cluster(clusterItems, maxDistance, minPoints, epsilonPercent, progress);
     }
 
     public ClusterResponse<T> cluster(List<T> items, double maxDistance, int minPoints, double epsilonPercent) {
-        @SuppressWarnings("unchecked")
-        ClusterItem<T>[] clusterItems = items.stream().map(ClusterItem<T>::new).toArray(count -> new ClusterItem[count]);
-        return cluster(clusterItems, maxDistance, minPoints, epsilonPercent);
+        return cluster(items, maxDistance, minPoints, epsilonPercent, new DummyProgressImpl());
     }
 
-    private ClusterResponse<T> cluster(ClusterItem<T>[] clusterItems, double maxDistance, int minPoints, double epsilonPercent) {
+    public ClusterResponse<T> cluster(List<T> items, double maxDistance, int minPoints, double epsilonPercent, Progress progress) {
+        @SuppressWarnings("unchecked")
+        ClusterItem<T>[] clusterItems = items.stream().map(ClusterItem<T>::new).toArray(count -> new ClusterItem[count]);
+        return cluster(clusterItems, maxDistance, minPoints, epsilonPercent, progress);
+    }
 
+    private ClusterResponse<T> cluster(ClusterItem<T>[] clusterItems, double maxDistance, int minPoints, double epsilonPercent, Progress progress) {
+
+        // create sub processes to reflect the 2 stages
+        Progress sortProgress = new ProgressImpl("Order by reachable distance");
+        Progress detectProgress = new ProgressImpl("Detect cluster");
+        progress.addChild(sortProgress, 5);
+        progress.addChild(detectProgress, 5);
+        double progressIncrement = 1.0 / clusterItems.length;
+
+        // prepare work buffers
         List<ClusterItem<T>> neighbors = new UnOrderedArrayList<>(clusterItems.length - 1);
         List<ClusterItem<T>> result = new ArrayList<>(clusterItems.length + 1);
         List<ClusterItem<T>> seeds = new UnOrderedArrayList<>();
 
         // for each unprocessed point p of DB
         for (int i = 0, end = clusterItems.length; i < end; ++i) {
+            sortProgress.addProgress(progressIncrement);
             ClusterItem<T> p = clusterItems[i];
             if (p.isProcessed()) {
                 // p is already processed
@@ -65,14 +85,15 @@ public class Optics<T> {
                 update(neighbors, p, seeds);
                 // for each next q in Seeds
                 while (!seeds.isEmpty()) {
-                    handleBestSeed(maxDistance, minPoints, clusterItems, neighbors, result, seeds);
+                    handleBestSeed(maxDistance, minPoints, clusterItems, neighbors, result, seeds, sortProgress);
                 }
             }
         }
-        return detect(result, epsilonPercent, minPoints);
+        sortProgress.finish();
+        return detect(result, epsilonPercent, minPoints, detectProgress);
     }
 
-    private void handleBestSeed(double maxDistance, int minPoints, ClusterItem<T>[] clusterItems, List<ClusterItem<T>> neighbors, List<ClusterItem<T>> result, List<ClusterItem<T>> seeds) {
+    private void handleBestSeed(double maxDistance, int minPoints, ClusterItem<T>[] clusterItems, List<ClusterItem<T>> neighbors, List<ClusterItem<T>> result, List<ClusterItem<T>> seeds, Progress sortProgress) {
         // find next seed with the lowest reachable distance
         int bestReachableDistanceIndex = getBestReachableDistanceIndex(seeds);
         ClusterItem<T> q = seeds.remove(bestReachableDistanceIndex);
@@ -83,6 +104,7 @@ public class Optics<T> {
         q.processed = true;
         // output q to the ordered list
         result.add(q);
+        sortProgress.addProgress(1.0 / clusterItems.length);
         // if (core-distance(q, eps, Minpts) != UNDEFINED)
         if (q.coreDistance > 0) {
             // update(N', q, Seeds, eps, Minpts)
@@ -103,18 +125,20 @@ public class Optics<T> {
         return bestReachableDistanceIndex;
     }
 
-    private ClusterResponse<T> detect(List<ClusterItem<T>> result, double epsilonPercent, int minPoints) {
+    private ClusterResponse<T> detect(List<ClusterItem<T>> result, double epsilonPercent, int minPoints, Progress detectProgress) {
         List<T> notClustered = new ArrayList<>();
         List<List<T>> clusters = new ArrayList<>();
         List<Integer> steepDownList = new ArrayList<>();
 
         ensureReachableDistance(result, epsilonPercent);
+        // result.forEach(r -> System.out.println(r.reachableDistance));
 
         int index = 0;
         int end = result.size() - 1;
 
         // start going through the results and try to find clusters
         while (index < end) {
+            detectProgress.setProgress(index / (double) end);
             // find downward start (needs to be steep)
             int startDownward = findStartDownward(result, epsilonPercent, index, end);
             steepDownList.add(startDownward);
@@ -159,6 +183,7 @@ public class Optics<T> {
             index = endUpward;
         }
 
+        detectProgress.finish();
         return new ClusterResponse<>(notClustered, clusters);
     }
 

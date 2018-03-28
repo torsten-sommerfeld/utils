@@ -40,7 +40,11 @@ public class OpticsTest {
     public void testClusteringOnDataWithoutSuitableClusters() {
         // given
         Optics<Colors> optics = new Optics<Colors>(Colors::getDistance);
-        List<Colors> data = createColorData();
+        List<Colors> data = new ArrayList<>();
+
+        data.add(new Colors(0, 0, 0));
+        data.add(new Colors(255, 0, 0));
+        data.add(new Colors(0, 255, 0));
 
         // when
         ClusterResponse<Colors> cluster = optics.cluster(data, 128, 2, 0.1);
@@ -143,15 +147,29 @@ public class OpticsTest {
         return data;
     }
 
-    public List<Colors> createColorData() {
-        List<Colors> result = new ArrayList<>();
+    @Test
+    public void testClusteringOnDataLargeDataSet() {
+        // given
+        Optics<Colors> optics = new Optics<Colors>(Colors::getDistanceIncludingC);
+        List<Colors> data = new ArrayList<>();
+        data.add(new Colors(160, 0, 192, 1));
+        data.add(new Colors(160, 0, 224, 100));
+        data.add(new Colors(160, 32, 128, 20));
+        data.add(new Colors(160, 32, 160, 1));
+        data.add(new Colors(160, 32, 192, 50));
+        data.add(new Colors(192, 0, 128, 1000));
+        data.add(new Colors(192, 0, 160, 100));
+        data.add(new Colors(192, 0, 192, 110));
+        data.add(new Colors(192, 0, 224, 1200));
+        data.add(new Colors(192, 32, 128, 1300));
+        data.add(new Colors(192, 32, 160, 600));
+        data.add(new Colors(224, 0, 128, 26));
+        data.add(new Colors(224, 0, 160, 50));
+        // when
+        ClusterResponse<Colors> cluster = optics.cluster(data, 255 * 255, 2, 0.01);
 
-        result.add(new Colors(0, 0, 0));
-        result.add(new Colors(255, 0, 0));
-        result.add(new Colors(0, 255, 0));
-        // result.add(new Colors(0, 0, 255));
-
-        return result;
+        // then
+        Assert.assertTrue(cluster.getClusters().size() > 1);
     }
 
     @Getter
@@ -171,15 +189,33 @@ public class OpticsTest {
 
     @Getter
     @NoArgsConstructor
-    @AllArgsConstructor
     private static class Colors {
         private int r;
         private int g;
         private int b;
+        private int c;
+
+        public Colors(int r, int g, int b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+
+        public Colors(int r, int g, int b, int c) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.c = c;
+        }
 
         public static double getDistance(Colors color, Colors color2) {
             return MathUtil.sqr(color.r - color2.r) + MathUtil.sqr(color.g - color2.g) + MathUtil.sqr(color.b - color2.b);
         }
+
+        public static double getDistanceIncludingC(Colors color, Colors color2) {
+            return MathUtil.sqr(color.r - color2.r) + MathUtil.sqr(color.g - color2.g) + MathUtil.sqr(color.b - color2.b) + color.c + color2.c;
+        }
+
     }
 
 }
