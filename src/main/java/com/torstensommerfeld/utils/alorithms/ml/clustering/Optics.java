@@ -199,6 +199,9 @@ public class Optics<T> {
             for (int i = index; i < startDownwardBestCluster; ++i) {
                 notClustered.add(result.get(i).item);
             }
+            for (int i = endUpwardBestCluster; i < endUpward; ++i) {
+                notClustered.add(result.get(i).item);
+            }
         } else {
             // add not clustered items
             for (int i = index; i < endUpward; ++i) {
