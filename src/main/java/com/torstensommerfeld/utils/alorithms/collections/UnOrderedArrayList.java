@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.RandomAccess;
 
 import org.apache.commons.collections4.iterators.ArrayIterator;
 import org.apache.commons.collections4.iterators.ArrayListIterator;
@@ -31,7 +32,7 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor
 @SuppressWarnings("unchecked")
-public class UnOrderedArrayList<T> extends AbstractList<T> {
+public class UnOrderedArrayList<T> extends AbstractList<T> implements RandomAccess {
     private static final Object[] INIT_ARRAY = new Object[0];
 
     private Object[] objects = INIT_ARRAY;
