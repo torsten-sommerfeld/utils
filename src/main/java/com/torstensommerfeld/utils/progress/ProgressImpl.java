@@ -1,4 +1,4 @@
-package progress;
+package com.torstensommerfeld.utils.progress;
 
 import java.util.ArrayList;
 import java.util.Collections;

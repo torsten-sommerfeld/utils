@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.torstensommerfeld.utils.alorithms.collections.UnOrderedArrayList;
 import com.torstensommerfeld.utils.alorithms.ml.QuickSelect;
+import com.torstensommerfeld.utils.progress.DummyProgressImpl;
+import com.torstensommerfeld.utils.progress.Progress;
+import com.torstensommerfeld.utils.progress.ProgressImpl;
 
 import lombok.Getter;
 import lombok.ToString;
-import progress.DummyProgressImpl;
-import progress.Progress;
-import progress.ProgressImpl;
 
 public class Optics<T> {
 
