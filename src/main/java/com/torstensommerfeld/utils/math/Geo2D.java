@@ -12,6 +12,22 @@ public class Geo2D {
     }
 
     /**
+     * @return distance of point (x1, y1) to point (x2, y2)
+     */
+    public static double getDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(MathUtil.sqr(x1 - x2) + MathUtil.sqr(y1 - y2));
+    }
+
+    /**
+     * Compared to getDistance this method does not take the square root and hence it is faster
+     * 
+     * @return square of distance of point (x1, y1) to point (x2, y2)
+     */
+    public static double getDistanceSqr(double x1, double y1, double x2, double y2) {
+        return MathUtil.sqr(x1 - x2) + MathUtil.sqr(y1 - y2);
+    }
+
+    /**
      * Compared to getDistance this method does not take the square root and hence it is faster
      * 
      * @return square of distance of point (x1, y1) to point (x2, y2)

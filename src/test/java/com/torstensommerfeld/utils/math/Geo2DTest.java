@@ -102,4 +102,19 @@ public class Geo2DTest {
         Assert.assertEquals(3, target.getY(), 0.001);
         Assert.assertEquals(2, target.getR(), 0.3);
     }
+
+    @Test
+    public void testGetCircle_points_are_on_a_line() {
+        // given
+        Circle target = new Circle();
+
+        // when
+        Geo2D.getCircle(1, 0, 2, 0, 3, 0, target);
+
+        // then
+        Assert.assertTrue(Double.isNaN(target.getX()) || Double.isInfinite(target.getX()));
+        Assert.assertTrue(Double.isNaN(target.getY()) || Double.isInfinite(target.getY()));
+        Assert.assertTrue(Double.isNaN(target.getR()));
+    }
+
 }
