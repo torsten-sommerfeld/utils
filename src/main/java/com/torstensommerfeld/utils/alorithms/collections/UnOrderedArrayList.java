@@ -212,4 +212,16 @@ public class UnOrderedArrayList<T> extends AbstractList<T> implements RandomAcce
         return super.hashCode();
     }
 
+    public T pop() {
+        return remove(0);
+    }
+
+    public void push(T t) {
+        add(t);
+    }
+
+    public T getLast() {
+        return (T) objects[end - 1];
+    }
+
 }
