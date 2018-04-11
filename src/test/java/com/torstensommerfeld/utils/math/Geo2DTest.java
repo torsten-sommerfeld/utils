@@ -218,6 +218,25 @@ public class Geo2DTest {
     }
 
     @Test
+    public void testGetEllipse_with_given_center() {
+        // given
+        Ellipse ellipse = new Ellipse();
+        double x1 = 0, y1 = 0;
+        double x2 = 1, y2 = 1;
+        double x3 = 5, y3 = 1;
+        // when
+        ellipse = Geo2D.getEllipseWithGivenCenter(3, 0, x1, y1, x2, y2, x3, y3, ellipse);
+
+        // then
+        Assert.assertEquals(3, ellipse.getX(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, ellipse.getY(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, ellipse.getRotationsAngle(), NumberUtil.DEFAULT_EPSILON);
+        assertPointOnEllipse(ellipse, x1, y1);
+        assertPointOnEllipse(ellipse, x2, y2);
+        assertPointOnEllipse(ellipse, x3, y3);
+    }
+
+    @Test
     public void testGetEllipse_x_axis_centered_in_3x0_30degree_angle() {
         // given
         Ellipse ellipse = new Ellipse();

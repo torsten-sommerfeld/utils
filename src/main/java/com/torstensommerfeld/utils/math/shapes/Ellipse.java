@@ -31,4 +31,11 @@ public class Ellipse {
         return MathUtil.sqr(x - this.x) / MathUtil.sqr(a) + MathUtil.sqr(y - this.y) / MathUtil.sqr(b);
     }
 
+    public boolean isValid() {
+        return !Double.isNaN(a) && !Double.isNaN(b) && !Double.isNaN(x) && !Double.isNaN(y) && !Double.isNaN(rotationsAngle);
+    }
+
+    public boolean isInvalid() {
+        return Double.isNaN(a) || Double.isNaN(b) || Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(rotationsAngle);
+    }
 }

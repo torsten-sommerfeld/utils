@@ -246,6 +246,71 @@ public class Geo2D {
 
     }
 
+    /**
+     * This method can be used if the center and 3 additional points are known
+     * 
+     * The regular ellipse equation degrates to (D and E are defined by the center):
+     * 
+     * B*xi*yi + C*yi*yi + (-2*xc - B*yc)*xi + (-B*xc - 2 * C * yc)*yi + F = -xi*xi
+     * 
+     * <=>
+     * 
+     * B*(xi*yi-yc*xi-xc*yi) + C*(yi*yi - 2*yc*yi) + F = -xi*xi + 2*xc*xi
+     * 
+     * @param target
+     * @return
+     */
+    public static Ellipse getEllipseWithGivenCenter(double centerX, double centerY, double x1, double y1, double x2, double y2, double x3, double y3, Ellipse target) {
+        Matrix equation = new Matrix(3, 3);
+        double[][] m = equation.getM();
+
+        m[0][0] = x1 * y1 - centerY * x1 - centerX * y1;
+        m[0][1] = y1 * y1 - 2 * centerY * y1;
+        m[0][2] = 1;
+        m[1][0] = x2 * y2 - centerY * x2 - centerX * y2;
+        m[1][1] = y2 * y2 - 2 * centerY * y2;
+        m[1][2] = 1;
+        m[2][0] = x3 * y3 - centerY * x3 - centerX * y3;
+        m[2][1] = y3 * y3 - 2 * centerY * y3;
+        m[2][2] = 1;
+
+        double[] v1 = new double[] { -x1 * x1 + 2 * centerX * x1, -x2 * x2 + 2 * centerX * x2, -x3 * x3 + 2 * centerX * x3 };
+
+        EquationSolution result = MatrixUtil.solveGaussianElimination(equation, v1);
+
+        // copy over result
+        double[] solution = result.getSolution();
+        double A = 1;
+        double B = solution[0];
+        double C = solution[1];
+        double D = -2 * A * centerX - B * centerY;
+        double E = -B * centerX - 2 * C * centerY;
+        double F = solution[2];
+
+        double bb4ac = (B * B - 4 * A * C);
+        double t = 2 * (A * E * E + C * D * D - B * D * E + bb4ac * F);
+        double acbb = Math.sqrt(MathUtil.sqr(A - C) + B * B);
+        double a = -Math.sqrt(t * (A + C + acbb)) / bb4ac;
+        double b = -Math.sqrt(t * (A + C - acbb)) / bb4ac;
+        double y = (B * D - 2 * A * E) / (-B * B + 4 * A * C);
+        double x = (-B * y - D) / (2 * A);
+        final double rotationsAgnle;
+        if (B == 0) {
+            rotationsAgnle = A < C ? 0 : Math.PI;
+        } else {
+            rotationsAgnle = Math.atan((C - A - acbb) / B);
+        }
+
+        target.setA(a);
+        target.setB(b);
+        target.setX(centerX);
+        target.setY(centerY);
+        target.setRotationsAngle(rotationsAgnle);
+
+        return target;
+
+    }
+
     public static double[] rotate(double[] point, double angle, double[] target) {
         double x = point[0];
         double y = point[1];
