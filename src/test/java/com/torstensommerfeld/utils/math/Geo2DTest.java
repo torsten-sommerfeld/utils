@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.torstensommerfeld.utils.math.shapes.Circle;
+import com.torstensommerfeld.utils.math.shapes.CubicFunctionParameters;
 import com.torstensommerfeld.utils.math.shapes.Ellipse;
+import com.torstensommerfeld.utils.math.shapes.QuadraticFunctionParameters;
 
 public class Geo2DTest {
 
@@ -353,19 +355,19 @@ public class Geo2DTest {
     }
 
     @Test
-    public void testQuadraticPolynom_center_0x0_upwards_no_scale() {
+    public void testQuadraticFunction_center_0x0_upwards_no_scale() {
         // given
         double x1 = -1, y1 = 1;
         double x2 = 0, y2 = 0;
         double x3 = 1, y3 = 1;
 
         // when
-        double[] result = Geo2D.getQuadraticEquationParameters(x1, y1, x2, y2, x3, y3, new double[3]);
+        QuadraticFunctionParameters result = Geo2D.getQuadraticFunctionParameters(x1, y1, x2, y2, x3, y3, new QuadraticFunctionParameters());
 
         // then
-        double a = result[0];
-        double b = result[1];
-        double c = result[2];
+        double a = result.getA();
+        double b = result.getB();
+        double c = result.getC();
         double vertex[] = Geo2D.getVertexPointForQuadraticEquation(a, b, c, new double[2]);
         Assert.assertEquals(1, a, NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(0, vertex[0], NumberUtil.DEFAULT_EPSILON);
@@ -373,22 +375,40 @@ public class Geo2DTest {
     }
 
     @Test
-    public void testQuadraticPolynom_center_1x2_upwards_no_scale() {
+    public void testQuadraticFunction_center_1x2_upwards_no_scale() {
         // given
         double x1 = 0, y1 = 3;
         double x2 = 1, y2 = 2;
         double x3 = 2, y3 = 3;
 
         // when
-        double[] result = Geo2D.getQuadraticEquationParameters(x1, y1, x2, y2, x3, y3, new double[3]);
+        QuadraticFunctionParameters result = Geo2D.getQuadraticFunctionParameters(x1, y1, x2, y2, x3, y3, new QuadraticFunctionParameters());
 
         // then
-        double a = result[0];
-        double b = result[1];
-        double c = result[2];
+        double a = result.getA();
+        double b = result.getB();
+        double c = result.getC();
         double vertex[] = Geo2D.getVertexPointForQuadraticEquation(a, b, c, new double[2]);
         Assert.assertEquals(1, vertex[0], NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(2, vertex[1], NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testCubicFunction() {
+        // given
+        double x1 = -4, y1 = 0;
+        double x2 = -1, y2 = 0;
+        double x3 = 0, y3 = -2;
+        double x4 = 2, y4 = 0;
+
+        // when
+        CubicFunctionParameters result = Geo2D.getCubicFunctionParameters(x1, y1, x2, y2, x3, y3, x4, y4, new CubicFunctionParameters());
+
+        // then
+        Assert.assertEquals(y1, result.calculateY(x1), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(y2, result.calculateY(x2), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(y3, result.calculateY(x3), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(y4, result.calculateY(x4), NumberUtil.DEFAULT_EPSILON);
     }
 
     @Test

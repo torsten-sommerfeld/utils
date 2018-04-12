@@ -5,7 +5,15 @@ import com.torstensommerfeld.utils.math.matrix.Matrix;
 import com.torstensommerfeld.utils.math.matrix.MatrixUtil;
 import com.torstensommerfeld.utils.math.shapes.Circle;
 import com.torstensommerfeld.utils.math.shapes.Ellipse;
+import com.torstensommerfeld.utils.math.shapes.QuadraticFunctionParameters;
+import com.torstensommerfeld.utils.math.shapes.CubicFunctionParameters;
 
+/**
+ * This class contains a set of methods to perform various calculations to solve problems within 2D domain
+ * 
+ * @author torsten
+ *
+ */
 public class Geo2D {
 
     /**
@@ -81,8 +89,8 @@ public class Geo2D {
          * 
          * III: I' - II') x1*dy - y1*dx = -w*dy*dy + x*dy - w*dx*dx - y*dx
          * 
-         * III'   )  x1*dy - y1*dx = -w*dy*dy - w*dx*dx + x*dy - y*dx
-         * III''  )  x1*dy - y1*dx = -w*(dy*dy + dx*dx) + x*dy - y*dx
+         * III'   ) x1*dy - y1*dx = -w*dy*dy - w*dx*dx + x*dy - y*dx
+         * III''  ) x1*dy - y1*dx = -w*(dy*dy + dx*dx) + x*dy - y*dx
          * III''' ) w*(dy*dy + dx*dx) = x*dy -y*dx - x1*dy + y1*dx
          * III'''') w = (-y*dx - x1*dy + y1*dx) / (dy*dy + dx*dx)
          */
@@ -379,7 +387,7 @@ public class Geo2D {
      * 
      * Note: This method calculates it manually. Alternatively we cold solve the linear equation system with 3 unknowns. It gives the same results but would be slower.
      */
-    public static double[] getQuadraticEquationParameters(double x1, double y1, double x2, double y2, double x3, double y3, double[] target) {
+    public static QuadraticFunctionParameters getQuadraticFunctionParameters(double x1, double y1, double x2, double y2, double x3, double y3, QuadraticFunctionParameters target) {
         /*-
          * I  ) ax1*x1 + b*x1 + c = y1
          * II ) ax2*x2 + b*x2 + c = y2
@@ -433,9 +441,9 @@ public class Geo2D {
         double a = xx13 == 0 ? (y23 - b * x23) / xx23 : (y13 - b * x13) / xx13;
         double c = y1 - a * x1 * x1 - b * x1;
 
-        target[0] = a;
-        target[1] = b;
-        target[2] = c;
+        target.setA(a);
+        target.setB(b);
+        target.setC(c);
 
         return target;
 
@@ -483,6 +491,50 @@ public class Geo2D {
         target[0] = x;
         target[1] = y;
         return target;
+    }
+
+    /**
+     * The qubic equation has the form of ax^3 + bx^2 + cx + d = y
+     * 
+     * This method finds the parameter a, b, c and d fitting the 4 given points
+     * 
+     * 
+     */
+    public static CubicFunctionParameters getCubicFunctionParameters(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, CubicFunctionParameters target) {
+        /*-
+         * I  ) ax1*x1*x1 + bx1*x1 + cx1 + d = y1
+         * II ) ax2*x2*x2 + bx2*x2 + cx2 + d = y2
+         * III) ax3*x3*x3 + bx3*x3 + cx3 + d = y3
+         * IV ) ax4*x4*x4 + bx4*x4 + cx4 + d = y4
+         */
+        Matrix matrix = new Matrix(4, 4);
+        double[][] m = matrix.getM();
+        m[0][0] = x1 * x1 * x1;
+        m[0][1] = x1 * x1;
+        m[0][2] = x1;
+        m[0][3] = 1;
+        m[1][0] = x2 * x2 * x2;
+        m[1][1] = x2 * x2;
+        m[1][2] = x2;
+        m[1][3] = 1;
+        m[2][0] = x3 * x3 * x3;
+        m[2][1] = x3 * x3;
+        m[2][2] = x3;
+        m[2][3] = 1;
+        m[3][0] = x4 * x4 * x4;
+        m[3][1] = x4 * x4;
+        m[3][2] = x4;
+        m[3][3] = 1;
+
+        double[] result = MatrixUtil.solve(matrix, new double[] { y1, y2, y3, y4 }, new double[4]);
+
+        target.setA(result[0]);
+        target.setB(result[1]);
+        target.setC(result[2]);
+        target.setD(result[3]);
+
+        return target;
+
     }
 
     public static double[] rotate(double[] point, double angle, double[] target) {
