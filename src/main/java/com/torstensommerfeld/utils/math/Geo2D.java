@@ -56,6 +56,44 @@ public class Geo2D {
         return Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / distanceP1P2;
     }
 
+    public static double[] getOthogonalVector(double dx, double dy, double[] target) {
+        target[0] = -dy;
+        target[1] = dx;
+        return target;
+    }
+
+    public static double[] getClosestPointOnLineToPoint(double x, double y, double x1, double y1, double x2, double y2, double[] target) {
+        /*-
+         *   x2-x1      x1    y1 - y2      x
+         *  (y2-y1) v + y1 = (x2 - y1) w + y
+         *  
+         *  dx = x2 - x1
+         *  dy = y2 - y1
+         * 
+         * I )   v*dx + x1 = -w*dy + x | * dy
+         * II)   v*dy + y1 =  w*dx + y | * dx
+         * 
+         * I ')  v*dx*dy + x1*dy = -w*dy*dy + x*dy
+         * II')  v*dy*dx + y1*dx =  w*dx*dx + y*dx
+         * 
+         * III: I' - II') x1*dy - y1*dx = -w*dy*dy + x*dy - w*dx*dx - y*dx
+         * 
+         * III'   )  x1*dy - y1*dx = -w*dy*dy - w*dx*dx + x*dy - y*dx
+         * III''  )  x1*dy - y1*dx = -w*(dy*dy + dx*dx) + x*dy - y*dx
+         * III''' ) w*(dy*dy + dx*dx) = x*dy -y*dx - x1*dy + y1*dx
+         * III'''') w = (-y*dx - x1*dy + y1*dx) / (dy*dy + dx*dx)
+         */
+
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double w = (x * dy - y * dx - x1 * dy + y1 * dx) / (dy * dy + dx * dx);
+
+        target[0] = -w * dy + x;
+        target[1] = w * dx + y;
+
+        return target;
+    }
+
     /**
      * This method calculates the parameters of a circle (center, radius) based on 3 points.
      * 
@@ -280,20 +318,18 @@ public class Geo2D {
 
         // copy over result
         double[] solution = result.getSolution();
-        double A = 1;
-        double B = solution[0];
-        double C = solution[1];
-        double D = -2 * A * centerX - B * centerY;
-        double E = -B * centerX - 2 * C * centerY;
-        double F = solution[2];
+        final double A = 1;
+        final double B = solution[0];
+        final double C = solution[1];
+        final double D = -2 * A * centerX - B * centerY;
+        final double E = -B * centerX - 2 * C * centerY;
+        final double F = solution[2];
 
         double bb4ac = (B * B - 4 * A * C);
         double t = 2 * (A * E * E + C * D * D - B * D * E + bb4ac * F);
         double acbb = Math.sqrt(MathUtil.sqr(A - C) + B * B);
         double a = -Math.sqrt(t * (A + C + acbb)) / bb4ac;
         double b = -Math.sqrt(t * (A + C - acbb)) / bb4ac;
-        double y = (B * D - 2 * A * E) / (-B * B + 4 * A * C);
-        double x = (-B * y - D) / (2 * A);
         final double rotationsAgnle;
         if (B == 0) {
             rotationsAgnle = A < C ? 0 : Math.PI;
@@ -309,6 +345,119 @@ public class Geo2D {
 
         return target;
 
+    }
+
+    /**
+     * The quadratic equation has the form of ax^2 + bx + c = y
+     * 
+     * This method finds the parameter a, b and c fitting the 3 given points
+     * 
+     * Note: This method calculates it manually. Alternatively we cold solve the linear equation system with 3 unknowns. It gives the same results but would be slower.
+     */
+    public static double[] getQuadraticEquationParameters(double x1, double y1, double x2, double y2, double x3, double y3, double[] target) {
+        /*-
+         * I  ) ax1*x1 + b*x1 + c = y1
+         * II ) ax2*x2 + b*x2 + c = y2
+         * III) ax3*x3 + b*x3 + c = y3
+         * 
+         * IV: I  - III) a(x1*x1 - x3*x3) + b(x1 - x3) = y1 - y3
+         * V:  II - III) a(x2*x2 - x3*x3) + b(x2 - x3) = y2 - y3
+         * 
+         * xx13 = x1*x1 - x3*x3
+         * x13 = x1 - x3
+         * xx23 = x2*x2 - x3*x3
+         * x23 = x2 - x3
+         * y13 = y1 - y3
+         * y23 = y2 - y3
+         * 
+         * IV' ) a*xx13 + b*x13 = y13  | * xx23
+         * V'  ) a*xx23 + b*x23 = y23  | * xx13
+         * 
+         * IV'') a*xx13 * xx23 + b*x13 * xx23 = y13 * xx23
+         * V'' ) a*xx23 * xx13 + b*x23 * xx13 = y23 * xx13
+         * 
+         * VI: IV'' - V'') b*x13 * xx23 - b*x23 * xx13 = y13 * xx23 - y23 * xx13
+         * VI' ) b(x13 * xx23 - x23 * xx13) = y13 * xx23 - y23 * xx13
+         * 
+         * x' = x13 * xx23 - x23 * xx13
+         * y' = y13 * xx23 - y23 * xx13
+         * 
+         * VI'' ) b * x' = y'
+         * VI''') b = 'y / x'
+         * 
+         * VII: b in IV') a*xx13 + b*x13 = y13
+         * VII') a*xx13 = y13 - b*x13
+         *       a = (y13 - b*x13) / xx13;
+         * 
+         * VII: b in V') a*xx23 + b*x23 = y23
+         * VII') a*xx23 = y13 - b*x23
+         *       a = (y23 - b*x23) / xx23;
+         * 
+         */
+        double xx13 = x1 * x1 - x3 * x3;
+        double x13 = x1 - x3;
+        double xx23 = x2 * x2 - x3 * x3;
+        double x23 = x2 - x3;
+        double y13 = y1 - y3;
+        double y23 = y2 - y3;
+
+        double dx = x13 * xx23 - x23 * xx13;
+        double dy = y13 * xx23 - y23 * xx13;
+
+        double b = dy / dx;
+        double a = xx13 == 0 ? (y23 - b * x23) / xx23 : (y13 - b * x13) / xx13;
+        double c = y1 - a * x1 * x1 - b * x1;
+
+        target[0] = a;
+        target[1] = b;
+        target[2] = c;
+
+        return target;
+
+    }
+
+    /**
+     * returns the solution of a*x^2 + b*x + c = 0
+     * 
+     * returns [NaN, NaN] if there is no solution
+     * 
+     * returns [x, NaN] if there is only a double solution
+     * 
+     * returns [x1, x2] if there are two solutions
+     * 
+     */
+    public static double[] solveQuadraticEquation(double a, double b, double c, double[] target) {
+        double p = b / a;
+        double q = c / a;
+
+        double discriminant = p * p - 4 * q;
+        if (NumberUtil.isZero(discriminant)) {
+            target[0] = p / -2;
+            target[1] = Double.NaN;
+        } else if (discriminant < 0) {
+            target[0] = Double.NaN;
+            target[1] = Double.NaN;
+        } else {
+            double root = Math.sqrt(discriminant);
+            target[0] = p / -2 + root;
+            target[1] = p / -2 - root;
+        }
+
+        return target;
+
+    }
+
+    /**
+     * Returns the vertex (apex / scheitelpunkt) [x, y] of the quadratic equation ax^2 + bx + c = y
+     * 
+     * @return
+     */
+    public static double[] getVertexPointForQuadraticEquation(double a, double b, double c, double[] target) {
+        double x = -b / (2 * a);
+        double y = a * x * x + b * x + c;
+        target[0] = x;
+        target[1] = y;
+        return target;
     }
 
     public static double[] rotate(double[] point, double angle, double[] target) {

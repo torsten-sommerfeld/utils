@@ -237,6 +237,32 @@ public class Geo2DTest {
     }
 
     @Test
+    public void testGetEllipse_with_given_center2() {
+        // given
+        /*-
+         *     12345
+         *     
+         * 1    123
+         * 2   4   5
+         * 3    678
+         *     
+         */
+        Ellipse ellipse = new Ellipse();
+        double x1 = 1, y1 = 2;
+        double x2 = 2, y2 = 1;
+        double x3 = 2, y3 = 3;
+        // when
+        ellipse = Geo2D.getEllipseWithGivenCenter(3, 2, x1, y1, x2, y2, x3, y3, ellipse);
+        // then
+        Assert.assertEquals(3, ellipse.getX(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(2, ellipse.getY(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, ellipse.getRotationsAngle(), NumberUtil.DEFAULT_EPSILON);
+        assertPointOnEllipse(ellipse, x1, y1);
+        assertPointOnEllipse(ellipse, x2, y2);
+        assertPointOnEllipse(ellipse, x3, y3);
+    }
+
+    @Test
     public void testGetEllipse_x_axis_centered_in_3x0_30degree_angle() {
         // given
         Ellipse ellipse = new Ellipse();
@@ -324,5 +350,98 @@ public class Geo2DTest {
             Assert.assertEquals(center[0] + Math.cos(angle), result[0], NumberUtil.DEFAULT_EPSILON);
             Assert.assertEquals(center[1] + Math.sin(angle), result[1], NumberUtil.DEFAULT_EPSILON);
         }
+    }
+
+    @Test
+    public void testQuadraticPolynom_center_0x0_upwards_no_scale() {
+        // given
+        double x1 = -1, y1 = 1;
+        double x2 = 0, y2 = 0;
+        double x3 = 1, y3 = 1;
+
+        // when
+        double[] result = Geo2D.getQuadraticEquationParameters(x1, y1, x2, y2, x3, y3, new double[3]);
+
+        // then
+        double a = result[0];
+        double b = result[1];
+        double c = result[2];
+        double vertex[] = Geo2D.getVertexPointForQuadraticEquation(a, b, c, new double[2]);
+        Assert.assertEquals(1, a, NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, vertex[0], NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, vertex[1], NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testQuadraticPolynom_center_1x2_upwards_no_scale() {
+        // given
+        double x1 = 0, y1 = 3;
+        double x2 = 1, y2 = 2;
+        double x3 = 2, y3 = 3;
+
+        // when
+        double[] result = Geo2D.getQuadraticEquationParameters(x1, y1, x2, y2, x3, y3, new double[3]);
+
+        // then
+        double a = result[0];
+        double b = result[1];
+        double c = result[2];
+        double vertex[] = Geo2D.getVertexPointForQuadraticEquation(a, b, c, new double[2]);
+        Assert.assertEquals(1, vertex[0], NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(2, vertex[1], NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testGetClosestPointOnLineToPoint_xAxis_to_point() {
+        // given
+        double x1 = 1;
+        double y1 = 0;
+        double x2 = 10;
+        double y2 = 0;
+        double x = 5;
+        double y = 5;
+
+        // when
+        double[] result = Geo2D.getClosestPointOnLineToPoint(x, y, x1, y1, x2, y2, new double[2]);
+
+        // then
+        Assert.assertEquals(5, result[0], NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result[1], NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testGetClosestPointOnLineToPoint_parallelToAxis_to_point() {
+        // given
+        double x1 = 1;
+        double y1 = 3;
+        double x2 = 10;
+        double y2 = 3;
+        double x = 5;
+        double y = 3;
+
+        // when
+        double[] result = Geo2D.getClosestPointOnLineToPoint(x, y, x1, y1, x2, y2, new double[2]);
+
+        // then
+        Assert.assertEquals(5, result[0], NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(3, result[1], NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testGetClosestPointOnLineToPoint_line_through_origin_to_point() {
+        // given
+        double x1 = -5;
+        double y1 = -10;
+        double x2 = 5;
+        double y2 = 10;
+        double x = y1 - y2;
+        double y = x2 - x1;
+
+        // when
+        double[] result = Geo2D.getClosestPointOnLineToPoint(x, y, x1, y1, x2, y2, new double[2]);
+
+        // then
+        Assert.assertEquals(0, result[0], NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result[1], NumberUtil.DEFAULT_EPSILON);
     }
 }

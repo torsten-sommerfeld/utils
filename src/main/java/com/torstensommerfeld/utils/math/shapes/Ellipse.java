@@ -14,6 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ellipse {
+    public static final Ellipse INVALID = new Ellipse(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     private double x;
     private double y;
     private double a; // semi-major
