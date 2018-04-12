@@ -444,4 +444,38 @@ public class Geo2DTest {
         Assert.assertEquals(0, result[0], NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(0, result[1], NumberUtil.DEFAULT_EPSILON);
     }
+
+    @Test
+    public void testGetRelativeLocationOfPointBetween2Points_horizontal() {
+        // given
+        double x1 = 10;
+        double y1 = 2;
+        double x2 = 18;
+        double y2 = 2;
+        double x = 12;
+        double y = 2;
+
+        // when
+        double result = Geo2D.getRelativeLocationOfPointBetween2Points(x, y, x1, y1, x2, y2);
+
+        // then
+        Assert.assertEquals(0.25, result, NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testGetRelativeLocationOfPointBetween2Points_vertically() {
+        // given
+        double x1 = 2;
+        double y1 = 18;
+        double x2 = 2;
+        double y2 = 10;
+        double x = 2;
+        double y = 12;
+
+        // when
+        double result = Geo2D.getRelativeLocationOfPointBetween2Points(x, y, x1, y1, x2, y2);
+
+        // then
+        Assert.assertEquals(0.75, result, NumberUtil.DEFAULT_EPSILON);
+    }
 }

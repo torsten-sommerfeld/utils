@@ -62,6 +62,9 @@ public class Geo2D {
         return target;
     }
 
+    /**
+     * calculates the coordinates of a point which is part of the given line defined by (x1,y1) and (x2,y2) and is closest to the given point (x,y)
+     */
     public static double[] getClosestPointOnLineToPoint(double x, double y, double x1, double y1, double x2, double y2, double[] target) {
         /*-
          *   x2-x1      x1    y1 - y2      x
@@ -92,6 +95,28 @@ public class Geo2D {
         target[1] = w * dx + y;
 
         return target;
+    }
+
+    /**
+     * This method calculates and returns f for the given equation:
+     * 
+     * x1 + (x2-x1)f = x2 - (x2-x1)(1-f) = x
+     * 
+     * y1 + (y2-y1)f = y2 - (y2-y1)(1-f) = y
+     * 
+     * f = (y - y1) / (y2-y1) and f = (x - x1) / (x2-x1)
+     * 
+     * The method assumes that point (x,y) is between (x1,y1) and (x2,y2)
+     */
+
+    public static double getRelativeLocationOfPointBetween2Points(double x, double y, double x1, double y1, double x2, double y2) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
+        return dx == 0 //
+                ? (y - y1) / dy //
+                : (x - x1) / dx;
+
     }
 
     /**
