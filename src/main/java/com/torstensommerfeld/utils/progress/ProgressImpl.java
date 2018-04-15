@@ -81,6 +81,7 @@ public class ProgressImpl implements Progress {
 
     @Override
     public void setActive(Progress progress) {
+        /*-
         if (active != progress) {
             active = progress;
             if (progressHolders != null) {
@@ -89,6 +90,7 @@ public class ProgressImpl implements Progress {
                 }
             }
         }
+        */
     }
 
     @Override
