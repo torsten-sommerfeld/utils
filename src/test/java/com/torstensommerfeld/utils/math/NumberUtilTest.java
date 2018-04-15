@@ -1,5 +1,13 @@
 package com.torstensommerfeld.utils.math;
 
+import static com.torstensommerfeld.utils.math.NumberUtil.ANGLE_0;
+import static com.torstensommerfeld.utils.math.NumberUtil.ANGLE_180;
+import static com.torstensommerfeld.utils.math.NumberUtil.ANGLE_270;
+import static com.torstensommerfeld.utils.math.NumberUtil.ANGLE_315;
+import static com.torstensommerfeld.utils.math.NumberUtil.ANGLE_45;
+import static com.torstensommerfeld.utils.math.NumberUtil.ANGLE_90;
+import static com.torstensommerfeld.utils.math.NumberUtil.isCounterClockWise;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -74,4 +82,39 @@ public class NumberUtilTest {
         Assert.assertFalse(NumberUtil.isSame(1, 0.89, epsilon));
     }
 
+    @Test
+    public void testNumberToSymbol_9() {
+        // given
+        int number = 9;
+
+        // when
+        char result = NumberUtil.numberToSymbol(number);
+
+        // then
+        Assert.assertEquals('9', result);
+
+    }
+
+    @Test
+    public void testNumberToSymbol_10() {
+        // given
+        int number = 10;
+
+        // when
+        char result = NumberUtil.numberToSymbol(number);
+
+        // then
+        Assert.assertEquals('a', result);
+
+    }
+
+    @Test
+    public void testIsCounterClockWise() {
+        Assert.assertTrue(isCounterClockWise(ANGLE_90, ANGLE_315, ANGLE_270));
+        Assert.assertTrue(isCounterClockWise(ANGLE_90, ANGLE_45, ANGLE_270));
+        Assert.assertTrue(isCounterClockWise(ANGLE_180, ANGLE_90, ANGLE_0));
+        Assert.assertFalse(isCounterClockWise(ANGLE_270, ANGLE_315, ANGLE_90));
+        Assert.assertFalse(isCounterClockWise(ANGLE_270, ANGLE_45, ANGLE_90));
+        Assert.assertFalse(isCounterClockWise(ANGLE_0, ANGLE_90, ANGLE_180));
+    }
 }
