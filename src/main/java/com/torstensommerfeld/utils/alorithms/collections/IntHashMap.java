@@ -98,6 +98,7 @@ public class IntHashMap<V> {
             if (o == this)
                 return true;
             if (o instanceof Node) {
+                @SuppressWarnings("unchecked")
                 Node<V> e = (Node<V>) o;
                 if (key == e.getKey() && Objects.equals(value, e.getValue()))
                     return true;
@@ -325,7 +326,7 @@ public class IntHashMap<V> {
             if (p.key == key)
                 e = p;
             else {
-                for (int binCount = 0;; ++binCount) {
+                for (;;) {
                     if ((e = p.next) == null) {
                         p.next = newNode(key, value, null);
                     }
@@ -376,7 +377,7 @@ public class IntHashMap<V> {
             newThr = (newCap < MAXIMUM_CAPACITY && ft < (float) MAXIMUM_CAPACITY ? (int) ft : Integer.MAX_VALUE);
         }
         threshold = newThr;
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({ "unchecked" })
         Node<V>[] newTab = (Node<V>[]) new Node[newCap];
         table = newTab;
         if (oldTab != null) {
@@ -685,6 +686,7 @@ public class IntHashMap<V> {
 
         public final boolean remove(Object o) {
             if (o instanceof Node) {
+                @SuppressWarnings("unchecked")
                 Node<V> e = (Node<V>) o;
                 int key = e.getKey();
                 Object value = e.getValue();
@@ -796,7 +798,6 @@ public class IntHashMap<V> {
         Node<V>[] tab;
         Node<V> first;
         int n, i;
-        int binCount = 0;
         Node<V> old = null;
         if (size > threshold || (tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
@@ -807,7 +808,6 @@ public class IntHashMap<V> {
                     old = e;
                     break;
                 }
-                ++binCount;
             } while ((e = e.next) != null);
 
             V oldValue;
@@ -855,7 +855,6 @@ public class IntHashMap<V> {
         Node<V>[] tab;
         Node<V> first;
         int n, i;
-        int binCount = 0;
         Node<V> old = null;
         if (size > threshold || (tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
@@ -866,7 +865,6 @@ public class IntHashMap<V> {
                     old = e;
                     break;
                 }
-                ++binCount;
             } while ((e = e.next) != null);
         }
         V oldValue = (old == null) ? null : old.value;
@@ -894,7 +892,6 @@ public class IntHashMap<V> {
         Node<V>[] tab;
         Node<V> first;
         int n, i;
-        int binCount = 0;
         Node<V> old = null;
         if (size > threshold || (tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
@@ -905,7 +902,6 @@ public class IntHashMap<V> {
                     old = e;
                     break;
                 }
-                ++binCount;
             } while ((e = e.next) != null);
         }
         if (old != null) {
@@ -1028,13 +1024,12 @@ public class IntHashMap<V> {
             int cap = ((fc < DEFAULT_INITIAL_CAPACITY) ? DEFAULT_INITIAL_CAPACITY : (fc >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : tableSizeFor((int) fc));
             float ft = (float) cap * lf;
             threshold = ((cap < MAXIMUM_CAPACITY && ft < MAXIMUM_CAPACITY) ? (int) ft : Integer.MAX_VALUE);
-            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @SuppressWarnings({ "unchecked" })
             Node<V>[] tab = (Node<V>[]) new Node[cap];
             table = tab;
 
             // Read the keys and values, and put the mappings in the HashMap
             for (int i = 0; i < mappings; i++) {
-                @SuppressWarnings("unchecked")
                 int key = s.readInt();
                 @SuppressWarnings("unchecked")
                 V value = (V) s.readObject();
