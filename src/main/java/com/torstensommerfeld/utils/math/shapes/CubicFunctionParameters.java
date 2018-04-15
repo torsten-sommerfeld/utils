@@ -1,5 +1,7 @@
 package com.torstensommerfeld.utils.math.shapes;
 
+import com.torstensommerfeld.utils.math.NumberUtil;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,10 @@ public class CubicFunctionParameters {
 
     public double calculateY(double x) {
         return a * x * x * x + b * x * x + c * x + d;
+    }
+
+    public boolean isValid() {
+        return !Double.isNaN(a) && !NumberUtil.isZero(a);
     }
 
 }

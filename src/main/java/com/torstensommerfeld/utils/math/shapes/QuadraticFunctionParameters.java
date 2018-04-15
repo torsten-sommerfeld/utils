@@ -1,6 +1,7 @@
 package com.torstensommerfeld.utils.math.shapes;
 
 import com.torstensommerfeld.utils.math.Geo2D;
+import com.torstensommerfeld.utils.math.NumberUtil;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +25,9 @@ public class QuadraticFunctionParameters {
 
     public double[] getVertex(double[] target) {
         return Geo2D.getVertexPointForQuadraticEquation(a, b, c, target);
+    }
+
+    public boolean isValid() {
+        return !Double.isNaN(a) && !NumberUtil.isZero(a);
     }
 }
