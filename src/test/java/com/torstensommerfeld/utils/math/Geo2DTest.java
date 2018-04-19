@@ -212,11 +212,11 @@ public class Geo2DTest {
         Assert.assertEquals(3, ellipse.getX(), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(0, ellipse.getY(), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(angle, ellipse.getRotationsAngle(), NumberUtil.DEFAULT_EPSILON);
-        assertPointOnEllipse(ellipse, x1, y1);
-        assertPointOnEllipse(ellipse, x2, y2);
-        assertPointOnEllipse(ellipse, x3, y3);
-        assertPointOnEllipse(ellipse, x4, y4);
-        assertPointOnEllipse(ellipse, x5, y5);
+        assertPointOnEllipse(ellipse, p1[0], p1[1]);
+        assertPointOnEllipse(ellipse, p2[0], p2[1]);
+        assertPointOnEllipse(ellipse, p3[0], p3[1]);
+        assertPointOnEllipse(ellipse, p4[0], p4[1]);
+        assertPointOnEllipse(ellipse, p5[0], p5[1]);
     }
 
     @Test
@@ -287,11 +287,11 @@ public class Geo2DTest {
         Assert.assertEquals(3, ellipse.getX(), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(0, ellipse.getY(), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(angle, ellipse.getRotationsAngle(), NumberUtil.DEFAULT_EPSILON);
-        assertPointOnEllipse(ellipse, x1, y1);
-        assertPointOnEllipse(ellipse, x2, y2);
-        assertPointOnEllipse(ellipse, x3, y3);
-        assertPointOnEllipse(ellipse, x4, y4);
-        assertPointOnEllipse(ellipse, x5, y5);
+        assertPointOnEllipse(ellipse, p1[0], p1[1]);
+        assertPointOnEllipse(ellipse, p2[0], p2[1]);
+        assertPointOnEllipse(ellipse, p3[0], p3[1]);
+        assertPointOnEllipse(ellipse, p4[0], p4[1]);
+        assertPointOnEllipse(ellipse, p5[0], p5[1]);
     }
 
     private static void assertPointOnEllipse(Ellipse ellipse, double x, double y) {

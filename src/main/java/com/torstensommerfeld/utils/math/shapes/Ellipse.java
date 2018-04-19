@@ -35,7 +35,10 @@ public class Ellipse extends Center {
      * @return
      */
     public double getDistanceRatingToCenter(double x, double y) {
-        return MathUtil.sqr(x - this.getX()) / MathUtil.sqr(a) + MathUtil.sqr(y - this.getY()) / MathUtil.sqr(b);
+        double cx = x - this.getX();
+        double cy = y - this.getY();
+        return MathUtil.sqr(cx * Math.cos(rotationsAngle) + cy * Math.sin(rotationsAngle)) / MathUtil.sqr(a) + //
+                MathUtil.sqr(-cx * Math.sin(rotationsAngle) + cy * Math.cos(rotationsAngle)) / MathUtil.sqr(b);
     }
 
     public boolean isValid() {
