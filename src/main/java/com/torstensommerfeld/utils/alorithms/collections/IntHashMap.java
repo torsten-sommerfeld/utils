@@ -329,6 +329,7 @@ public class IntHashMap<V> {
                 for (;;) {
                     if ((e = p.next) == null) {
                         p.next = newNode(key, value, null);
+                        break;
                     }
                     if (e.key == key)
                         break;
