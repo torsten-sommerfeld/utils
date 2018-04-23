@@ -164,6 +164,7 @@ public class Geo2DTest {
         assertPointOnEllipse(ellipse, x3, y3);
         assertPointOnEllipse(ellipse, x4, y4);
         assertPointOnEllipse(ellipse, x5, y5);
+
     }
 
     @Test
@@ -187,6 +188,7 @@ public class Geo2DTest {
         assertPointOnEllipse(ellipse, x3, y3);
         assertPointOnEllipse(ellipse, x4, y4);
         assertPointOnEllipse(ellipse, x5, y5);
+
     }
 
     @Test
@@ -497,5 +499,21 @@ public class Geo2DTest {
 
         // then
         Assert.assertEquals(0.75, result, NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testNormalizeAngle() {
+        Assert.assertEquals(NumberUtil.ANGLE_135, Geo2D.normalizeAngle(NumberUtil.ANGLE_135), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(NumberUtil.ANGLE_135, Geo2D.normalizeAngle(NumberUtil.ANGLE_135 + NumberUtil.ANGLE_360), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(NumberUtil.ANGLE_135, Geo2D.normalizeAngle(NumberUtil.ANGLE_135 - NumberUtil.ANGLE_360), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(NumberUtil.ANGLE_135, Geo2D.normalizeAngle(NumberUtil.ANGLE_135 + NumberUtil.ANGLE_360 + NumberUtil.ANGLE_360), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(NumberUtil.ANGLE_135, Geo2D.normalizeAngle(NumberUtil.ANGLE_135 - NumberUtil.ANGLE_360 - NumberUtil.ANGLE_360), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testGetAngleBetweenVectors() {
+        Assert.assertEquals(0, Geo2D.getAngleBetweenVectors(0, 0, 1, 0, 0, 1, 1, 1), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(NumberUtil.ANGLE_90, Geo2D.getAngleBetweenVectors(0, 0, 1, 0, 0, 0, 0, 1), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(NumberUtil.ANGLE_270, Geo2D.getAngleBetweenVectors(0, 0, 0, 1, 0, 0, 1, 0), NumberUtil.DEFAULT_EPSILON);
     }
 }

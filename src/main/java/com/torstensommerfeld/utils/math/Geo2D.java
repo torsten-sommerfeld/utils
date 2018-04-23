@@ -4,9 +4,9 @@ import com.torstensommerfeld.utils.math.matrix.EquationSolution;
 import com.torstensommerfeld.utils.math.matrix.Matrix;
 import com.torstensommerfeld.utils.math.matrix.MatrixUtil;
 import com.torstensommerfeld.utils.math.shapes.Circle;
+import com.torstensommerfeld.utils.math.shapes.CubicFunctionParameters;
 import com.torstensommerfeld.utils.math.shapes.Ellipse;
 import com.torstensommerfeld.utils.math.shapes.QuadraticFunctionParameters;
-import com.torstensommerfeld.utils.math.shapes.CubicFunctionParameters;
 
 /**
  * This class contains a set of methods to perform various calculations to solve problems within 2D domain
@@ -300,18 +300,18 @@ public class Geo2D {
         double b = -Math.sqrt(t * (A + C - acbb)) / bb4ac;
         double y = (B * D - 2 * A * E) / (-B * B + 4 * A * C);
         double x = (-B * y - D) / (2 * A);
-        final double rotationsAgnle;
+        final double rotationsAngle;
         if (B == 0) {
-            rotationsAgnle = A < C ? 0 : Math.PI;
+            rotationsAngle = A < C ? 0 : Math.PI;
         } else {
-            rotationsAgnle = Math.atan((C - A - acbb) / B);
+            rotationsAngle = Math.atan((C - A - acbb) / B);
         }
 
         target.setA(a);
         target.setB(b);
         target.setX(x);
         target.setY(y);
-        target.setRotationsAngle(rotationsAgnle);
+        target.setRotationsAngle(rotationsAngle);
 
         return target;
 
@@ -559,5 +559,29 @@ public class Geo2D {
         target[0] = x * Math.cos(angle) - y * Math.sin(angle) + rotationCenter[0];
         target[1] = y * Math.cos(angle) + x * Math.sin(angle) + rotationCenter[1];
         return target;
+    }
+
+    /**
+     * This method returns the angle between vector p11p12 and vector p21p22. The angle is guaranteed to be between 0 and 2PI
+     */
+    public static double getAngleBetweenVectors(double p1x1, double p1y1, double p1x2, double p1y2, double p2x1, double p2y1, double p2x2, double p2y2) {
+        double p1dx = p1x2 - p1x1;
+        double p1dy = p1y2 - p1y1;
+        double p2dx = p2x2 - p2x1;
+        double p2dy = p2y2 - p2y1;
+
+        return normalizeAngle(Math.atan2(p2dy, p2dx) - Math.atan2(p1dy, p1dx));
+
+    }
+
+    /**
+     * This methods returns an angle between 0 and 2PI which equivalent to the given angle angle
+     * 
+     * @param d
+     * @return
+     */
+    public static double normalizeAngle(double angle) {
+        double normalizedAngle = angle % NumberUtil.ANGLE_360;
+        return normalizedAngle < 0 ? normalizedAngle + NumberUtil.ANGLE_360 : normalizedAngle;
     }
 }
