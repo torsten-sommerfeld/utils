@@ -584,4 +584,20 @@ public class Geo2D {
         double normalizedAngle = angle % NumberUtil.ANGLE_360;
         return normalizedAngle < 0 ? normalizedAngle + NumberUtil.ANGLE_360 : normalizedAngle;
     }
+
+    /**
+     * This method returns true if the vector p21p22 is bend clockwise when connected to the end to p11p12. This is only true in a screen / image coordinate system where the origin is in the left top corner.
+     * 
+     * NOTE: In an euclidean coordinate system (origin in the left bottom corner) this method would return true if both vectors are orientated anti-clockwise.
+     */
+
+    public static boolean isClockwise(double p1x1, double p1y1, double p1x2, double p1y2, double p2x1, double p2y1, double p2x2, double p2y2) {
+        double p1dx = p1x2 - p1x1;
+        double p1dy = p1y2 - p1y1;
+        double p2dx = p2x2 - p2x1;
+        double p2dy = p2y2 - p2y1;
+        double c = p1dx * p2dy - p1dy * p2dx;
+
+        return c >= 0;
+    }
 }

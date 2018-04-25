@@ -516,4 +516,14 @@ public class Geo2DTest {
         Assert.assertEquals(NumberUtil.ANGLE_90, Geo2D.getAngleBetweenVectors(0, 0, 1, 0, 0, 0, 0, 1), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(NumberUtil.ANGLE_270, Geo2D.getAngleBetweenVectors(0, 0, 0, 1, 0, 0, 1, 0), NumberUtil.DEFAULT_EPSILON);
     }
+
+    @Test
+    public void testIsClockWise() {
+        Assert.assertTrue(Geo2D.isClockwise(0, 0, 10, 0, 0, 0, 10, 0)); // 0 degrees
+        Assert.assertTrue(Geo2D.isClockwise(0, 0, 10, 0, 0, 0, 10, 1)); // 5.7 degrees
+        Assert.assertFalse(Geo2D.isClockwise(0, 0, 10, 0, 0, 0, 10, -1)); // 354 degrees
+        Assert.assertFalse(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, 10, 0)); // 270 degrees
+        Assert.assertFalse(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, 10, -100)); // 185 degrees
+        Assert.assertTrue(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, -10, -100)); // 174 degrees
+    }
 }
