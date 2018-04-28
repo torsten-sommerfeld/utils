@@ -3,6 +3,7 @@ package com.torstensommerfeld.utils.math;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.torstensommerfeld.utils.math.model.Line;
 import com.torstensommerfeld.utils.math.shapes.Circle;
 import com.torstensommerfeld.utils.math.shapes.CubicFunctionParameters;
 import com.torstensommerfeld.utils.math.shapes.Ellipse;
@@ -525,5 +526,165 @@ public class Geo2DTest {
         Assert.assertFalse(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, 10, 0)); // 270 degrees
         Assert.assertFalse(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, 10, -100)); // 185 degrees
         Assert.assertTrue(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, -10, -100)); // 174 degrees
+    }
+
+    @Test
+    public void testFindCenterLine_vertical() {
+
+        // given
+        double points[] = { 0, 0, 6, 0, 6, 2, 4, 2, 4, 6, 6, 6, 6, 8, 0, 8, 0, 6, 2, 6, 2, 2, 0, 2 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(3, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(4, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_horizontal() {
+
+        // given
+        double points[] = { 0, 0, 0, 6, 2, 6, 2, 4, 6, 4, 6, 6, 8, 6, 8, 0, 6, 0, 6, 2, 2, 2, 2, 0 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(1, Math.abs(result.getDx()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getDy(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(4, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(3, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_horizontal_2_points() {
+        // given
+        double points[] = { 1, 1, 2, 1 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(1, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getDy(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1.5, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_vertical_2_points() {
+        // given
+        double points[] = { 1, 1, 1, 2 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertNotEquals(1, result.getDy(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1.5, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_diagonal_2_points() {
+        // given
+        double points[] = { 1, 1, 2, 2 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(Math.sqrt(2) / 2, Math.abs(result.getDx()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(Math.sqrt(2) / 2, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1.5, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1.5, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_triangle_horizontal() {
+        // given
+        double points[] = { 0, 0, 10, 0, 5, 1 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertNotEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getDy(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(5, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1.0 / 3.0, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_triangle_vertical() {
+        // given
+        double points[] = { 0, 0, 10, 0, 5, 100 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(1, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(5, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(100 / 3.0, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_rotated_rectangle_45() {
+        // given
+        double points[] = { 0, 0, 20, 0, 20, 10, 0, 10 };
+
+        // rotate points
+        for (int i = 0; i < points.length; i += 2) {
+            double[] p = { points[i], points[i + 1] };
+            double[] target = Geo2D.rotate(p, new double[] { 10, 5 }, NumberUtil.ANGLE_45, new double[2]);
+            points[i] = target[0];
+            points[i + 1] = target[1];
+        }
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertNotEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertNotEquals(0, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(10, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(5, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_diamond() {
+        // given
+        double points[] = { -10, 0, 0, -10, 10, 0, 0, 10 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertNotEquals(0, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testFindCenterLine_square() {
+        // given
+        double points[] = { -5, -5, 5, -5, 5, 5, -5, 5 };
+
+        // when
+        Line result = Geo2D.findCenterLine(points, new Line());
+
+        // then
+        Assert.assertEquals(0, result.getDx(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertNotEquals(0, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getX0(), NumberUtil.DEFAULT_EPSILON);
+        Assert.assertEquals(0, result.getY0(), NumberUtil.DEFAULT_EPSILON);
     }
 }

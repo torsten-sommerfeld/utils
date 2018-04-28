@@ -3,6 +3,7 @@ package com.torstensommerfeld.utils.math;
 import com.torstensommerfeld.utils.math.matrix.EquationSolution;
 import com.torstensommerfeld.utils.math.matrix.Matrix;
 import com.torstensommerfeld.utils.math.matrix.MatrixUtil;
+import com.torstensommerfeld.utils.math.model.Line;
 import com.torstensommerfeld.utils.math.shapes.Circle;
 import com.torstensommerfeld.utils.math.shapes.CubicFunctionParameters;
 import com.torstensommerfeld.utils.math.shapes.Ellipse;
@@ -600,4 +601,205 @@ public class Geo2D {
 
         return c >= 0;
     }
+
+    /**
+     * This method finds the center line of the given list of points for which the sum of the distance of all points to the line is minimal.
+     * 
+     * The base vector of the center line is always the center of the list of points.
+     * 
+     * The direction vector has always a positive x and the length of the vector is always 1.
+     */
+    /*-
+     * We start with the equation to calculate the minimum distance of a point to a line:
+     * 
+     * ->  Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / getDistance(x1, y1, x2, y2);
+     * 
+     * getDistance(x1, y1, x2, y2) is linear factor -> drop it
+     *   
+     * ->  Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1);  
+     * 
+     * We need our distance to be positive which is insured with Math.abs(). Math.sqr does this as well. Substituting Math.abs with Math.sql allows us 
+     * to transform the equation but in certain conditions leads to less optimal solutions (e.g. a square) 
+     * 
+     * ->  Math.sqr((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1);  
+     * 
+     * The points (x1,y1) and (x2,y2) define the center line we are looking for and the point (x,y) stands for a point of our list of points
+     * We can set (x2,y2) with the center list of points:
+     * x2 -> mx
+     * y2 -> my
+     * x -> xi
+     * y -> yi
+     * 
+     * We are now looking for values for (x1,y1)
+     * 
+     * x1 -> x
+     * y1 -> y
+     * 
+     * ->  Math.sqr((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1)
+     * ->  Math.sqr((my - y1) * x - (mx - x1) * y + mx * y1 - my * x1)
+     * ->  Math.sqr((my - y) * xi - (mx - x) * yi + mx * y - my * x)
+     *  
+     * We are looking for the values (x,y) which minimise the sum of our transformed distance/error function over all given points
+     * 
+     *  -> min = sum(Math.sqr((my - y) * xi - (mx - x) * yi + mx * y - my * x))
+     * 
+     *  we can simplify the equation
+     * 
+     *  -> min = sum(Math.sqr(my * xi - y * xi - mx * yi + x * yi + mx * y - my * x))
+     *  -> min = sum(Math.sqr(-y * xi - mx * yi + x * yi + mx * y - my * x + my * xi))
+     *  -> min = sum(Math.sqr(-y * xi + x * yi + mx * y - my * x + my * xi - mx * yi)) 
+     *
+     *  c = my * xi - mx * yi
+     *
+     *  -> min = sum(Math.sqr(-y * xi + x * yi + mx * y - my * x + c)) 
+     *  -> min = sum(Math.sqr(y * (mx-xi) + x * (yi - my) + c))
+     *
+     *  substitude: 
+     *  -> mxi = mx-xi
+     *  -> myi = yi - my
+     * 
+     *  -> min = sum(Math.sqr(y * mxi + x * myi + c)) 
+     *  -> min = sum(y*y*mxi*mxi + 2*y*mxi*x*myi + 2*y*mxi*c + x*x*myi*myi + 2*x*myi*c + c*c)
+     *  -> min = y*y*sum(mxi*mxi) + x*x*sum(myi*myi) + x*y*sum(2*mxi*myi) + y*sum(2*mxi*c) + x*sum(2*myi*c) + sum(c*c)
+     *  
+     * sum(c*c) is a constant which does not affect the result so we can drop it (or we keep it and later it will be dropped by the derivative)
+     *
+     *  -> min = y*y*sum(mxi*mxi) + x*x*sum(myi*myi) + x*y*sum(2*mxi*myi) + y*sum(2*mxi*c) + x*sum(2*myi*c)
+     * more substitutions:
+     * 
+     *  -> smximxi = sum(mxi*mxi)
+     *  -> smyimyi = sum(myi*myi)
+     *  -> mximyi2 = sum(2*mxi*myi)
+     *  -> mxic2 = sum(2*mxi*c)
+     *  -> myic2 = sum(2*myi*c)
+     *  
+     *  -> min = y*y*smximxi + x*x*smyimyi + x*y*mximyi2 + y*mxic2 + x*myic2
+     *  
+     * We have an optimising problem with 2 unknowns. However, y depends on x so we can just pick any x to calculate a matching y.
+     * We could pick the simplest value 0 but mx might be 0 already so we pick mx+1. 
+     * 
+     * with x = mx+1 = x
+     *  -> min = y*y*smximxi + y*mximyi2*x + y*mxic2 + x*x*smyimyi + x*myic2
+     *  -> min = y*y*smximxi + y*(mximyi2*x + mxic2) + x*x*smyimyi + x*myic2
+     *  
+     * We have now an optimising problem with 1 unknown of a quadratic equation. The equation has its minimum where its derivative is 0
+     * So we need to take the derivative and calculate where it is 0 (Nullstelle)
+     * 
+     *  -> 0 = 2*y*smximxi + mximyi2*x + mxic2 
+     *  -> y = -(mximyi2*x + mxic2) / (2 * smximxi)
+     * 
+     */
+    public static Line findCenterLine(double[] points, Line result) {
+        int count = points.length / 2;
+
+        // get median
+        double mx = 0;
+        double my = 0;
+        for (int i = 0, end = points.length; i < end; i += 2) {
+            mx += points[i];
+            my += points[i + 1];
+        }
+
+        mx /= count;
+        my /= count;
+
+        // calculate factors
+        double smximxi = 0;
+        double smyimyi = 0;
+        double mximyi2 = 0;
+        double mxic2 = 0;
+        double myic2 = 0;
+
+        for (int i = 0, end = points.length; i < end; i += 2) {
+            double xi = points[i];
+            double yi = points[i + 1];
+            double mxi = mx - xi;
+            double myi = yi - my;
+            double c = my * xi - mx * yi;
+            smximxi += mxi * mxi;
+            smyimyi += myi * myi;
+            mximyi2 += 2 * mxi * myi;
+            mxic2 += 2 * mxi * c;
+            myic2 += 2 * myi * c;
+        }
+
+        result.setX0(mx);
+        result.setY0(my);
+
+        double xByX;
+        double yByX;
+        double xByY;
+        double yByY;
+
+        if (smximxi == 0 && smyimyi == 0) {
+            // one point
+            xByX = mx;
+            yByX = my;
+            xByY = mx;
+            yByY = my;
+        } else {
+            xByX = mx + 1;
+            yByX = -(mximyi2 * xByX + mxic2) / (2 * smximxi);
+            yByY = my + 1;
+            xByY = -(mximyi2 * yByY + myic2) / (2 * smyimyi);
+
+            if (smximxi == 0) {
+                yByX = yByY;
+                xByX = xByY;
+            } else if (smyimyi == 0) {
+                yByY = yByX;
+                xByY = xByX;
+            }
+        }
+
+        // pick better one
+
+        double errorByX = calcError(smximxi, smyimyi, mximyi2, mxic2, myic2, xByX, yByX);
+        double errorByY = calcError(smximxi, smyimyi, mximyi2, mxic2, myic2, xByY, yByY);
+
+        double x;
+        double y;
+        if (errorByX < errorByY) {
+            x = xByX;
+            y = yByX;
+        } else {
+            x = xByY;
+            y = yByY;
+        }
+
+        // get result
+        double dx = mx - x;
+        double dy = my - y;
+        if (dx < 0) {
+            dx = -dx;
+            dy = -dy;
+        }
+        double len = Math.sqrt(dx * dx + dy * dy);
+        result.setDx(dx / len);
+        result.setDy(dy / len);
+
+        return result;
+    }
+
+    private static double calcError(double smximxi, double smyimyi, double mximyi2, double mxic2, double myic2, double x, double y) {
+        return y * y * smximxi + x * x * smyimyi + x * y * mximyi2 + y * mxic2 + x * myic2;
+    }
+    /*-
+    private static double calcError(double[] points, double x, double y) {
+        double mx = 0;
+        double my = 0;
+        for (int i = 0, end = points.length; i < end; i += 2) {
+            mx += points[i];
+            my += points[i + 1];
+        }
+        double error = 0;
+        double dist = getDistanceSqr(x, y, mx, my);
+        for (int i = 0, end = points.length; i < end; i += 2) {
+            double xi = points[i];
+            double yi = points[i + 1];
+            double e = MathUtil.sqr(Math.abs((my - y) * xi - (mx - x) * yi + mx * y - my * x) / getDistance(x, y, mx, my));
+            error += e;
+        }
+        return error;
+    } */
 }
