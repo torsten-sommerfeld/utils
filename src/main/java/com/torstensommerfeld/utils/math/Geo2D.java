@@ -828,22 +828,46 @@ public class Geo2D {
     private static double calcError(double smximxi, double smyimyi, double mximyi2, double mxic2, double myic2, double x, double y) {
         return y * y * smximxi + x * x * smyimyi + x * y * mximyi2 + y * mxic2 + x * myic2;
     }
+
+    /**
+     * This method return true if the line segments (p1,p2) and (p3,p4) intersect.
+     *
+     * Returns false if the line segments are parallel or colinear.
+     */
     /*-
-    private static double calcError(double[] points, double x, double y) {
-        double mx = 0;
-        double my = 0;
-        for (int i = 0, end = points.length; i < end; i += 2) {
-            mx += points[i];
-            my += points[i + 1];
+     * (P2-P1) * U + P1 = (P4 - P3) * V + P3
+     * udx = p2x - p1x
+     * udy = p2y - p1y
+     * vdx = p4x - p3x
+     * vdy = p4y - p3y
+     *
+     * I ) udx * u + p1x = vdx * v + p3x | * udy
+     * II) udy * u + p1y = vdy * v + p3y | * udx
+     *
+     * I ') udx * udy * u + p1x * udy = vdx * udy * v + p3x * udy
+     * II') udx * udy * u + p1y * udx = vdy * udx * v + p3y * udx
+     *
+     * III: I' - II') p1x * udy - p1y * udx = vdx * udy * v + p3x * udy - vdy * udx * v - p3y * udx
+     *             -> p1x * udy - p1y * udx - p3x * udy + p3y * udx = v*(vdx * udy - vdy * udx)
+     *
+     *
+     * IV) udy * u + p1y = vdy * v + p3y
+     *    -> u = (vdy * v + p3y - p1y) / udy
+     *  V) udx * u + p1x = vdx * v + p3x
+     *    -> u = (vdx * v + p3x - p1x) / udx
+     */
+    public static boolean dolineSegmentsIntersect(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y, double p4x, double p4y) {
+        double udx = p2x - p1x;
+        double udy = p2y - p1y;
+        double vdx = p4x - p3x;
+        double vdy = p4y - p3y;
+
+        double v = (p1x * udy - p1y * udx - p3x * udy + p3y * udx) / (vdx * udy - vdy * udx);
+        if (v < 0 || v > 1) {
+            return false;
         }
-        double error = 0;
-        double dist = getDistanceSqr(x, y, mx, my);
-        for (int i = 0, end = points.length; i < end; i += 2) {
-            double xi = points[i];
-            double yi = points[i + 1];
-            double e = MathUtil.sqr(Math.abs((my - y) * xi - (mx - x) * yi + mx * y - my * x) / getDistance(x, y, mx, my));
-            error += e;
-        }
-        return error;
-    } */
+        double u = NumberUtil.isZero(udx) ? (vdy * v + p3y - p1y) / udy : (vdx * v + p3x - p1x) / udx;
+
+        return u >= 0 && u <= 1;
+    }
 }

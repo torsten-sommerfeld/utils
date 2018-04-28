@@ -246,11 +246,11 @@ public class Geo2DTest {
         // given
         /*-
          *     12345
-         *     
+         *
          * 1    123
          * 2   4   5
          * 3    678
-         *     
+         *
          */
         Ellipse ellipse = new Ellipse();
         double x1 = 1, y1 = 2;
@@ -713,5 +713,20 @@ public class Geo2DTest {
         Assert.assertNotEquals(0, Math.abs(result.getDy()), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(0, result.getX0(), NumberUtil.DEFAULT_EPSILON);
         Assert.assertEquals(0, result.getY0(), NumberUtil.DEFAULT_EPSILON);
+    }
+
+    @Test
+    public void testDolineSegmentsIntersect() {
+        Assert.assertTrue(Geo2D.dolineSegmentsIntersect(0, 0, 10, 0, 5, -5, 5, 5)); // cross
+        Assert.assertTrue(Geo2D.dolineSegmentsIntersect(5, -5, 5, 5, 0, 0, 10, 0)); // cross
+        Assert.assertTrue(Geo2D.dolineSegmentsIntersect(1, -1, 5, 5, 0, 0, 10, 0)); // cross
+
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(-5, -5, -5, 5, 0, 0, 10, 0)); // left
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(5, -15, 5, -5, 0, 0, 10, 0)); // top
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(15, -5, 15, 5, 0, 0, 10, 0)); // right
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(5, 15, 5, 5, 0, 0, 10, 0)); // bottom
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(0, 0, 1, 0, 0, 1, 1, 1)); // parallel
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(0, 0, 1, 0, 0, 0, 1, 0)); // colinear
+        Assert.assertFalse(Geo2D.dolineSegmentsIntersect(0, 0, 1, 0, 0, 0, 2, 0)); // colinear
     }
 }
