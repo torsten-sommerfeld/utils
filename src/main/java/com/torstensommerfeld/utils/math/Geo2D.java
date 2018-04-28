@@ -603,7 +603,7 @@ public class Geo2D {
     }
 
     /**
-     * This method returns true if the 3 points are orientated clockwise (screen coordinate system)
+     * This method returns true if the 3 given points are orientated clockwise (screen coordinate system)
      * 
      * (B - A) x (C - A) > 0
      * 
@@ -614,7 +614,7 @@ public class Geo2D {
     }
 
     /**
-     * This method returns true if the 3 points are orientated clockwise (screen coordinate system)
+     * This method returns true if the 3 given points are orientated counter-clockwise (screen coordinate system)
      * 
      * (B - A) x (C - A) < 0
      * 
@@ -625,7 +625,7 @@ public class Geo2D {
     }
 
     /**
-     * This method returns true if the 3 points are colinear
+     * This method returns true if the 3 given points are colinear in regard of given epsilon
      * 
      * (B - A) x (C - A) = 0
      * 
@@ -635,6 +635,13 @@ public class Geo2D {
         return NumberUtil.isZero((p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x), epsilon);
     }
 
+    /**
+     * This method returns true if the 3 given points are colinear
+     * 
+     * (B - A) x (C - A) = 0
+     * 
+     * U x V = Ux*Vy-Uy*Vx
+     */
     public static boolean isColinear(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y) {
         return isColinear(p1x, p1y, p2x, p2y, p3x, p3y, NumberUtil.DEFAULT_EPSILON);
     }
