@@ -519,13 +519,40 @@ public class Geo2DTest {
     }
 
     @Test
-    public void testIsClockWise() {
+    public void testIsClockWise_lines() {
         Assert.assertTrue(Geo2D.isClockwise(0, 0, 10, 0, 0, 0, 10, 0)); // 0 degrees
         Assert.assertTrue(Geo2D.isClockwise(0, 0, 10, 0, 0, 0, 10, 1)); // 5.7 degrees
         Assert.assertFalse(Geo2D.isClockwise(0, 0, 10, 0, 0, 0, 10, -1)); // 354 degrees
         Assert.assertFalse(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, 10, 0)); // 270 degrees
         Assert.assertFalse(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, 10, -100)); // 185 degrees
         Assert.assertTrue(Geo2D.isClockwise(0, 0, 0, 10, 0, 0, -10, -100)); // 174 degrees
+    }
+
+    @Test
+    public void testIsClockwise_points() {
+        Assert.assertTrue(Geo2D.isClockwise(0, 0, 10, 0, 5, 1)); // regular triangle
+        Assert.assertTrue(Geo2D.isClockwise(0, 0, 10, 0, 20, 1)); // skewed triangle
+        Assert.assertFalse(Geo2D.isClockwise(0, 0, 10, 0, 5, -1)); // regular triangle
+        Assert.assertFalse(Geo2D.isClockwise(0, 0, 10, 0, 20, -1)); // skewed triangle
+        Assert.assertFalse(Geo2D.isClockwise(0, 0, 10, 0, 0, 0)); // colinear
+    }
+
+    @Test
+    public void testIsCounterClockwise_points() {
+        Assert.assertFalse(Geo2D.isCounterClockwise(0, 0, 10, 0, 5, 1)); // regular triangle
+        Assert.assertFalse(Geo2D.isCounterClockwise(0, 0, 10, 0, 20, 1)); // skewed triangle
+        Assert.assertTrue(Geo2D.isCounterClockwise(0, 0, 10, 0, 5, -1)); // regular triangle
+        Assert.assertTrue(Geo2D.isCounterClockwise(0, 0, 10, 0, 20, -1)); // skewed triangle
+        Assert.assertFalse(Geo2D.isCounterClockwise(0, 0, 10, 0, 0, 0)); // colinear
+    }
+
+    @Test
+    public void testIsColinear_points() {
+        Assert.assertFalse(Geo2D.isColinear(0, 0, 10, 0, 5, 1)); // regular triangle
+        Assert.assertFalse(Geo2D.isColinear(0, 0, 10, 0, 20, 1)); // skewed triangle
+        Assert.assertFalse(Geo2D.isColinear(0, 0, 10, 0, 5, -1)); // regular triangle
+        Assert.assertFalse(Geo2D.isColinear(0, 0, 10, 0, 20, -1)); // skewed triangle
+        Assert.assertTrue(Geo2D.isColinear(0, 0, 10, 0, 0, 0)); // colinear
     }
 
     @Test

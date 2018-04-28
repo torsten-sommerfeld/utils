@@ -603,6 +603,43 @@ public class Geo2D {
     }
 
     /**
+     * This method returns true if the 3 points are orientated clockwise (screen coordinate system)
+     * 
+     * (B - A) x (C - A) > 0
+     * 
+     * U x V = Ux*Vy-Uy*Vx
+     */
+    public static boolean isClockwise(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y) {
+        return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x) > 0;
+    }
+
+    /**
+     * This method returns true if the 3 points are orientated clockwise (screen coordinate system)
+     * 
+     * (B - A) x (C - A) < 0
+     * 
+     * U x V = Ux*Vy-Uy*Vx
+     */
+    public static boolean isCounterClockwise(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y) {
+        return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x) < 0;
+    }
+
+    /**
+     * This method returns true if the 3 points are colinear
+     * 
+     * (B - A) x (C - A) = 0
+     * 
+     * U x V = Ux*Vy-Uy*Vx
+     */
+    public static boolean isColinear(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y, double epsilon) {
+        return NumberUtil.isZero((p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x), epsilon);
+    }
+
+    public static boolean isColinear(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y) {
+        return isColinear(p1x, p1y, p2x, p2y, p3x, p3y, NumberUtil.DEFAULT_EPSILON);
+    }
+
+    /**
      * This method finds the center line of the given list of points for which the sum of the distance of all points to the line is minimal.
      * 
      * The base vector of the center line is always the center of the list of points.
