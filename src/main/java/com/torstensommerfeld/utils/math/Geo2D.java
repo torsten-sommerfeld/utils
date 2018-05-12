@@ -614,6 +614,17 @@ public class Geo2D {
     }
 
     /**
+     * This method returns true if the 3 given points are orientated clockwise (screen coordinate system)
+     *
+     * (B - A) x (C - A) > epsilon
+     *
+     * U x V = Ux*Vy-Uy*Vx
+     */
+    public static boolean isClockwise(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y, double epsilon) {
+        return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x) > epsilon;
+    }
+
+    /**
      * This method returns true if the 3 given points are orientated counter-clockwise (screen coordinate system)
      *
      * (B - A) x (C - A) < 0
@@ -622,6 +633,17 @@ public class Geo2D {
      */
     public static boolean isCounterClockwise(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y) {
         return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x) < 0;
+    }
+
+    /**
+     * This method returns true if the 3 given points are orientated counter-clockwise (screen coordinate system)
+     *
+     * (B - A) x (C - A) < 0
+     *
+     * U x V = Ux*Vy-Uy*Vx
+     */
+    public static boolean isCounterClockwise(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y, double epsilon) {
+        return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x) < epsilon;
     }
 
     /**
@@ -856,7 +878,7 @@ public class Geo2D {
      *  V) udx * u + p1x = vdx * v + p3x
      *    -> u = (vdx * v + p3x - p1x) / udx
      */
-    public static boolean dolineSegmentsIntersect(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y, double p4x, double p4y) {
+    public static boolean doLineSegmentsIntersect(double p1x, double p1y, double p2x, double p2y, double p3x, double p3y, double p4x, double p4y) {
         double udx = p2x - p1x;
         double udy = p2y - p1y;
         double vdx = p4x - p3x;
