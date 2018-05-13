@@ -16,13 +16,13 @@ public class BoundingBoxSearchTree2D<T extends BoundingBox2D> {
     private BoundingBoxSearchTree2D<T> smaller;
     private BoundingBoxSearchTree2D<T> larger;
     private double splitValue;
-    private Split<T> split;
+    private Split split;
 
     public BoundingBoxSearchTree2D(BoundingBox2D boundingBox) {
         this.boundingBox = boundingBox;
     }
 
-    public List<T> findCollisions(T object, List<T> targets) {
+    public List<T> findCollisions(BoundingBox2D object, List<T> targets) {
 
         for (T t : payload) {
             if (BoundingBox2DUtil.touch(t, object)) {
@@ -58,7 +58,7 @@ public class BoundingBoxSearchTree2D<T extends BoundingBox2D> {
         this.larger = larger;
     }
 
-    public void setSplit(Split<T> split) {
+    public void setSplit(Split split) {
         this.split = split;
     }
 

@@ -9,7 +9,7 @@ import com.torstensommerfeld.utils.alorithms.searchtree.Splitter.Split;
 
 @SuppressWarnings("unchecked")
 public class BoundingBoxSearchTree2DBuilder<T extends BoundingBox2D> {
-    private Splitter<T> splitter = new Splitter<>();
+    private Splitter splitter = new Splitter();
     private int maxNumberOfNotSplittedPayload;
 
     public BoundingBoxSearchTree2DBuilder(int maxNumberOfNotSplittedPayload) {
@@ -21,7 +21,7 @@ public class BoundingBoxSearchTree2DBuilder<T extends BoundingBox2D> {
         return build(objects, splitter.get());
     }
 
-    private BoundingBoxSearchTree2D<T> build(List<T> objects, Split<T> split) {
+    private BoundingBoxSearchTree2D<T> build(List<T> objects, Split split) {
         BoundingBox2D boundingBox = getBoundingBox(objects);
         BoundingBoxSearchTree2D<T> node = new BoundingBoxSearchTree2D<>(boundingBox);
         // termination condition
@@ -56,7 +56,7 @@ public class BoundingBoxSearchTree2DBuilder<T extends BoundingBox2D> {
             return node;
         }
 
-        Split<T> next = split.getNext();
+        Split next = split.getNext();
 
         if (!smaller.isEmpty()) {
             node.setSmaller(build(smaller, next));
