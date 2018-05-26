@@ -7,7 +7,6 @@ import com.torstensommerfeld.utils.alorithms.containers.boundingbox.BoundingBox2
 import com.torstensommerfeld.utils.alorithms.containers.boundingbox.BoundingBoxImpl;
 import com.torstensommerfeld.utils.alorithms.searchtree.Splitter.Split;
 
-@SuppressWarnings("unchecked")
 public class BoundingBoxSearchTree2DBuilder<T extends BoundingBox2D> {
     private Splitter splitter = new Splitter();
     private int maxNumberOfNotSplittedPayload;
